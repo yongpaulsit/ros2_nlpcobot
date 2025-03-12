@@ -14,20 +14,50 @@ from ament_index_python import get_package_share_directory
 def generate_launch_description():
     ld = LaunchDescription()
     
-    # realtimestt
-    realtimestt_node = Node(
+    # Speech to Text Node
+    speech_to_text_node = Node(
         package='nlpcobot_cpp_py',
-        executable='realtimestt.py',
+        executable='speech_to_text_node.py',
         output='screen',
         parameters=[
             {'use_sim_time': True}
         ],
     )
     
-    # groundingdino
-    groundingdino_node = Node(
+    # Detect Object Node
+    detect_object_node = Node(
         package='nlpcobot_cpp_py',
-        executable='groundingdino.py',
+        executable='detect_object_node.py',
+        output='screen',
+        parameters=[
+            {'use_sim_time': True}
+        ],
+    )
+    
+    # Image Publisher Node
+    image_publisher_node = Node(
+        package='nlpcobot_cpp_py',
+        executable='image_publisher_node.py',
+        output='screen',
+        parameters=[
+            {'use_sim_time': True}
+        ],
+    )
+    
+    # Parse Command Node
+    parse_command_node = Node(
+        package='nlpcobot_cpp_py',
+        executable='parse_command_node.py',
+        output='screen',
+        parameters=[
+            {'use_sim_time': True}
+        ],
+    )
+    
+    # Parse Command Node
+    nlpcobot_node = Node(
+        package='nlpcobot_cpp_py',
+        executable='nlpcobot_node.py',
         output='screen',
         parameters=[
             {'use_sim_time': True}
@@ -42,7 +72,10 @@ def generate_launch_description():
         )
     )
     
-    ld.add_action(realtimestt_node)
-    ld.add_action(groundingdino_node)
     ld.add_action(tm5_700_launch_file)
+    ld.add_action(nlpcobot_node)
+    ld.add_action(speech_to_text_node)
+    ld.add_action(parse_command_node)
+    ld.add_action(image_publisher_node)
+    ld.add_action(detect_object_node)
     return ld

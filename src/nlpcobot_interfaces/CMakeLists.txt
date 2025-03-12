@@ -21,6 +21,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
     "srv/TranscribeAudio.srv"
     "srv/ParseCommand.srv"
     "srv/DetectObject.srv"
+    "action/MoveRobot.action"
     DEPENDENCIES std_msgs std_srvs sensor_msgs geometry_msgs
 )
 

@@ -12,10 +12,15 @@ find_package(ament_cmake_python REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
 
+find_package(moveit_ros_planning_interface REQUIRED)
+find_package(moveit_visual_tools REQUIRED)
+
 find_package(std_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+
+find_package(nlpcobot_interfaces REQUIRED)
 
 ### C++ ###
 # Include Cpp "include" directory
@@ -25,9 +30,19 @@ include_directories(include)
 add_executable(cpp_executable src/cpp_node.cpp)
 ament_target_dependencies(cpp_executable rclcpp)
 
+add_executable(commander src/cobot_commander.cpp)
+ament_target_dependencies(commander 
+  rclcpp 
+  moveit_ros_planning_interface
+  moveit_visual_tools
+  geometry_msgs
+  nlpcobot_interfaces
+)
+
 # Install Cpp executables
 install(TARGETS
   cpp_executable
+  commander
   DESTINATION lib/${PROJECT_NAME}
 )
 
