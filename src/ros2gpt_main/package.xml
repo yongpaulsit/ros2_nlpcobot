@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>ros2gpt_main</name>
+  <version>0.0.0</version>
+  <description>Natural Language Interface for ROS2-controlled Robot</description>
+  <maintainer email="2102088@sit.singaporetech.edu.sg">yongp</maintainer>
+  <license>Apache-2.0</license>
+
+  <!-- C++ & Python -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend> 
+  <depend>rclcpp</depend> 
+  <depend>rclpy</depend>
+
+  <!-- Dependencies -->
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>ros2gpt_interfaces</depend>
+  <depend>tm_msgs</depend>
+  <depend>moveit_ros_planning_interface</depend>
+
+  <!-- Test Dependencies -->
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <!-- Export -->
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -1,0 +1,6 @@
+# Request (input): natural language command
+string text
+---
+# Response (output): the identified action and associated labels
+string action
+string[] labels

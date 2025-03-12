@@ -1,0 +1,27 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/yongp/workspaces/ros2gpt_ws/install/tm_msgs/include/**",
+        "/home/yongp/workspaces/ros2gpt_ws/install/techman_robot_msgs/include/**",
+        "/home/yongp/workspaces/ros2gpt_ws/install/ros2gpt_interfaces/include/**",
+        "/home/yongp/workspaces/ros2gpt_ws/install/realsense2_camera/include/**",
+        "/home/yongp/workspaces/ros2gpt_ws/install/realsense2_camera_msgs/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/yongp/workspaces/ros2gpt_ws/src/realsense-ros/realsense2_camera/include/**",
+        "/home/yongp/workspaces/ros2gpt_ws/src/tmr_ros2-humble/tm_driver/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

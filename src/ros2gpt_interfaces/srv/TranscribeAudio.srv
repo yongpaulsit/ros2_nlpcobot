@@ -1,0 +1,5 @@
+# Request (input): array of float32 values (audio data)
+float32[] audio_data
+---
+# Response (output): the transcribed text
+string transcribed_text

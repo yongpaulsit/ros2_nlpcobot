@@ -1,0 +1,6 @@
+# Request (input): natural language command
+sensor_msgs/Image image
+string[] labels
+---
+# Response (output): the identified action and associated labels
+geometry_msgs/Point position

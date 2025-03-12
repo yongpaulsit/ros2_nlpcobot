@@ -1,0 +1,48 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/opt/ros/humble/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/nlpcobot_cpp_py/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/realsense-ros/realsense2_camera/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/tmr_ros2-humble/tm_driver/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_planners/chomp/chomp_interface/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_planners/chomp/chomp_motion_planner/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_planners/pilz_industrial_motion_planner/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_planners/pilz_industrial_motion_planner_testutils/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_planners/test_configs/prbt_ikfast_manipulator_plugin/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_plugins/moveit_ros_control_interface/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_plugins/moveit_simple_controller_manager/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_ros/benchmarks/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_ros/move_group/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_ros/moveit_servo/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_ros/occupancy_map_monitor/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_ros/robot_interaction/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_ros/warehouse/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_setup_assistant/moveit_setup_app_plugins/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_setup_assistant/moveit_setup_assistant/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_setup_assistant/moveit_setup_controllers/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_setup_assistant/moveit_setup_core_plugins/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_setup_assistant/moveit_setup_framework/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit2/moveit_setup_assistant/moveit_setup_srdf_plugins/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit_task_constructor/core/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit_task_constructor/demo/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit_task_constructor/rviz_marker_tools/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/moveit_visual_tools/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/rosparam_shortcuts/include/**",
+        "/home/yongp/workspaces/nlpcobot_ws/src/ws_moveit2/src/srdfdom/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

@@ -1,0 +1,16 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/yongp/workspaces/motoros2_ws/install/motoros2_client_py/lib/python3.10/site-packages",
+        "/home/yongp/workspaces/motoros2_ws/install/motoros2_interfaces/local/lib/python3.10/dist-packages",
+        "/home/yongp/workspaces/motoros2_ws/install/industrial_msgs/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/yongp/workspaces/motoros2_ws/install/motoros2_client_py/lib/python3.10/site-packages",
+        "/home/yongp/workspaces/motoros2_ws/install/motoros2_interfaces/local/lib/python3.10/dist-packages",
+        "/home/yongp/workspaces/motoros2_ws/install/industrial_msgs/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
+}
