@@ -8,7 +8,7 @@ temp/
 .vscode/
 */.vscode/
 
-# ignore colcon build outputs
+# ROS, Cmake outputs
 build/
 install/
 log/

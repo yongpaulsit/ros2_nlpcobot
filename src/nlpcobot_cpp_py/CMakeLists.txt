@@ -26,10 +26,11 @@ find_package(nlpcobot_interfaces REQUIRED)
 # Include Cpp "include" directory
 include_directories(include)
 
-# Create Cpp executable
-add_executable(cpp_executable src/cpp_node.cpp)
-ament_target_dependencies(cpp_executable rclcpp)
+# Create Cpp executable (TEMPLATE)
+# add_executable(cpp_executable src/_template_node.cpp)
+# ament_target_dependencies(cpp_executable rclcpp)
 
+# Create Cpp executable
 add_executable(commander_node src/cobot_commander_node.cpp)
 ament_target_dependencies(commander_node 
   rclcpp 
@@ -41,7 +42,7 @@ ament_target_dependencies(commander_node
 
 # Install Cpp executables
 install(TARGETS
-  # cpp_executable # template cpp node
+  # cpp_executable # TEMPLATE
   commander_node
   DESTINATION lib/${PROJECT_NAME}
 )
@@ -52,7 +53,7 @@ ament_python_install_package(${PROJECT_NAME})
 
 # Install Python executables
 install(PROGRAMS
-  # scripts/py_node.py # template py node
+  # scripts/py_node.py # TEMPLATE
   scripts/nlpcobot_node.py
   scripts/speech_to_text_node.py
   scripts/detect_object_node.py
