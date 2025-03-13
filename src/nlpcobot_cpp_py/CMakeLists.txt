@@ -14,6 +14,7 @@ find_package(rclpy REQUIRED)
 
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(moveit_visual_tools REQUIRED)
+find_package(moveit_msgs REQUIRED)
 
 find_package(std_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
@@ -31,11 +32,12 @@ include_directories(include)
 # ament_target_dependencies(cpp_executable rclcpp)
 
 # Create Cpp executable
-add_executable(commander_node src/cobot_commander_node.cpp)
-ament_target_dependencies(commander_node 
+add_executable(cobot_commander_node src/cobot_commander_node.cpp)
+ament_target_dependencies(cobot_commander_node 
   rclcpp 
   moveit_ros_planning_interface
   moveit_visual_tools
+  moveit_msgs
   geometry_msgs
   nlpcobot_interfaces
 )
@@ -43,7 +45,7 @@ ament_target_dependencies(commander_node
 # Install Cpp executables
 install(TARGETS
   # cpp_executable # TEMPLATE
-  commander_node
+  cobot_commander_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -17,8 +17,10 @@
   <depend>std_srvs</depend>
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
+
   <depend>moveit_ros_planning_interface</depend>
   <depend>moveit_visual_tools</depend>
+  <depend>moveit_msgs</depend>
 
   <depend>nlpcobot_interfaces</depend>
 
