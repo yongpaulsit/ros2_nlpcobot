@@ -9,7 +9,7 @@ from RealtimeSTT import AudioToTextRecorder
 
 class SpeechToTextNode(Node):
     def __init__(self):
-        super().__init__('realtimestt_node')
+        super().__init__('speech_to_text_node')
         self.get_logger().info("Initializing RealtimeSTTNode...")
         self.get_logger().info("Wait until it says Speak Now...")
         
@@ -23,7 +23,7 @@ class SpeechToTextNode(Node):
         self.recorder = AudioToTextRecorder(
             language='en', 
             device=device, 
-            # wake_words="jarvis"
+            # wake_words='jarvis',
         )
         
         self.thread = Thread(target=self.main, daemon=True)

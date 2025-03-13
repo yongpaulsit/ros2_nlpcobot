@@ -30,8 +30,8 @@ include_directories(include)
 add_executable(cpp_executable src/cpp_node.cpp)
 ament_target_dependencies(cpp_executable rclcpp)
 
-add_executable(commander src/cobot_commander.cpp)
-ament_target_dependencies(commander 
+add_executable(commander_node src/cobot_commander_node.cpp)
+ament_target_dependencies(commander_node 
   rclcpp 
   moveit_ros_planning_interface
   moveit_visual_tools
@@ -41,8 +41,8 @@ ament_target_dependencies(commander
 
 # Install Cpp executables
 install(TARGETS
-  cpp_executable
-  commander
+  # cpp_executable # template cpp node
+  commander_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -52,13 +52,10 @@ ament_python_install_package(${PROJECT_NAME})
 
 # Install Python executables
 install(PROGRAMS
-  scripts/py_node.py
+  # scripts/py_node.py # template py node
   scripts/nlpcobot_node.py
-  scripts/speech_to_text.py
   scripts/speech_to_text_node.py
-  scripts/detect_object.py
   scripts/detect_object_node.py
-  scripts/parse_command.py
   scripts/parse_command_node.py
   scripts/image_publisher_node.py
   DESTINATION lib/${PROJECT_NAME}

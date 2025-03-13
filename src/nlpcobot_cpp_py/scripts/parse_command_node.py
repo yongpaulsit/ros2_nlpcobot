@@ -20,8 +20,12 @@ class ParseCommandNode(Node):
 
     def service_callback(self, request, response):
         self.get_logger().info('Parsing Input: "%s"' % request.text)
-        response.action, response.labels = self.extract_action_labels(request.text)
-        self.get_logger().info(f'Parsing Result: Action: {response.action}, Labels: {response.labels}')
+        try:
+            response.action, response.labels = self.extract_action_labels(request.text)
+            self.get_logger().info(f'Parsing Result: Action: {response.action}, Labels: {response.labels}')
+        except Exception as e:
+            self.get_logger().warn(e)
+            response = ParseCommand.Response()
         return response
 
     def extract_action_labels(self, text):

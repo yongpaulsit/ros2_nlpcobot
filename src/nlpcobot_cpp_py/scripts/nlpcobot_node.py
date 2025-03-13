@@ -4,6 +4,8 @@ from rclpy.node import Node
 from std_msgs.msg import String
 from nlpcobot_interfaces.srv import ParseCommand, DetectObject
 from nlpcobot_cpp_py.image_conversion import ImageConverter
+from geometry_msgs.msg import PointStamped
+from tf2_ros import Buffer, TransformListener
 
 # testing
 from sensor_msgs.msg import Image
@@ -29,7 +31,11 @@ class NLPCobotNode(Node):
         self._labels = ['']
         self._img_msg = Image()
         
-        # Transcribed Audio Listenener
+        # Static Transform Listener
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+        
+        # Transcribed Audio Listener
         self.transcribed_audio_subscriber = self.create_subscription(
             String,
             'transcribed_audio',
@@ -77,9 +83,11 @@ class NLPCobotNode(Node):
         self.get_logger().info("Test Case Completed!")
         
     def transcribed_audio_listener_callback(self, msg):
-        text = msg.data
-        self.get_logger().info('I heard: "%s"' % text)
-        self._action, self._labels = self.parse_command_request(text)
+        if msg.data:
+            self.get_logger().info('I heard: "%s"' % msg.data)
+            self._action, self._labels = self.parse_command_request(msg.data)
+        else:
+            return
         
     def sensor_image_listener_callback(self, msg):
         self._img_msg = msg
@@ -101,6 +109,23 @@ class NLPCobotNode(Node):
         rclpy.spin_until_future_complete(self, future)
         self.get_logger().info(f'Parsing Result: Point: {future.result().position}')
         return future.result().position
+    
+    # Function to transform from camera frame to world frame
+    def transform_point(self, x, y, z):
+        try:
+            point_camera = PointStamped()
+            point_camera.header.frame_id = "camera"
+            point_camera.header.stamp = self.get_clock().now().to_msg()
+            point_camera.point.x = x
+            point_camera.point.y = y
+            point_camera.point.z = z
+
+            # Transform point to world frame
+            point_world = self.tf_buffer.transform(point_camera, "world", rclpy.duration.Duration(seconds=1.0))
+            return [point_world.point.x, point_world.point.y, point_world.point.z]
+
+        except Exception as e:
+            return None
             
 def main(args=None):
     rclpy.init(args=args)
