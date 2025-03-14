@@ -4,6 +4,7 @@ import sys
 
 # Basic Launch file requirements
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
 from launch_ros.actions import Node
 
 # Other package Launch files
@@ -12,6 +13,11 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python import get_package_share_directory
 
 def generate_launch_description():
+    launch_arguments = DeclareLaunchArgument(
+        "publish_robot_description_semantic",
+        default_value='True',
+    )
+    
     # tmr_ros2 driver
     tm5_700_launch_file = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -21,5 +27,6 @@ def generate_launch_description():
     )
     
     ld = LaunchDescription()
+    ld.add_action(launch_arguments)
     ld.add_action(tm5_700_launch_file)
     return ld
