@@ -33,7 +33,12 @@ class DetectObjectNode(Node):
         
     def service_callback(self, request, response):
         self.get_logger().info('Received request!')
-        image = self.image_converter.ros_to_pil(request.image)
+        try:
+            image = self.image_converter.ros_to_pil(request.image)
+        except Exception as e:
+            self.get_logger().error(e)
+            return
+        
         labels = request.labels
         
         self.get_logger().info(f'Looking for "{labels}" in image...')
@@ -41,6 +46,7 @@ class DetectObjectNode(Node):
         
         if results is None:
             self.get_logger().info('Nothing Found!')
+        self.get_logger().info(results)
             
         self.parse_results(results[0])
         
@@ -48,6 +54,7 @@ class DetectObjectNode(Node):
         response.position.x = 0.5
         response.position.y = 1.5
         response.position.z = -0.5
+        self.get_logger().info(response.position)
         return response
         
     def detect(self, image: Image, labels):
@@ -69,7 +76,7 @@ class DetectObjectNode(Node):
         # Retrieve the first image result
         for box, score, labels in zip(result["boxes"], result["scores"], result["labels"]):
             box = [round(x, 2) for x in box.tolist()]
-            print(f"Detected {labels} with confidence {round(score.item(), 3)} at location {box}")
+            self.get_logger().info(f"Detected {labels} with confidence {round(score.item(), 3)} at location {box}")
             
 def main(args=None):
     rclpy.init(args=args)

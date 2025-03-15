@@ -30,7 +30,7 @@ def generate_launch_description():
         get_package_share_directory(moveit_config_path),
         'config/controllers.yaml',
     )
-    print('hi')
+    
     moveit_config = (
         MoveItConfigsBuilder('tm5-700')
         .robot_description(file_path=robot_description_path)
@@ -40,7 +40,6 @@ def generate_launch_description():
         .to_moveit_configs()
     )  
 
-    print('hi')
     move_group_interface_node = Node(
         package="nlpcobot_cpp_py",
         executable="move_group_interface_node",

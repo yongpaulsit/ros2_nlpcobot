@@ -1,4 +1,6 @@
 #include <memory>
+#include <thread>
+#include <functional>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <geometry_msgs/msg/pose.h>
@@ -8,44 +10,26 @@
 class MoveGroupInterfaceNode : public rclcpp::Node
 {
 public:
-  MoveGroupInterfaceNode() : Node("move_group_interface_node")
+  using MoveRobot = nlpcobot_interfaces::action::MoveRobot;
+  using GoalHandleMoveRobot = rclcpp_action::ServerGoalHandle<MoveRobot>;
+
+  explicit MoveGroupInterfaceNode(const rclcpp::NodeOptions &options = rclcpp::NodeOptions())
+      : Node("move_group_interface_node", options)
   {
-    RCLCPP_INFO(this->get_logger(), "Initializing Node");
+    RCLCPP_INFO(this->get_logger(), "Initializing MoveGroupInterfaceNode");
+    using namespace std::placeholders;
 
-    using MoveRobot = nlpcobot_interfaces::action::MoveRobot;
-    using GoalHandleMoveRobot = rclcpp_action::ServerGoalHandle<MoveRobot>;
-    using MoveGroupInterface = moveit::planning_interface::MoveGroupInterface;
+    this->action_server_ = rclcpp_action::create_server<MoveRobot>(
+        this->get_node_base_interface(),
+        this->get_node_clock_interface(),
+        this->get_node_logging_interface(),
+        this->get_node_waitables_interface(),
+        "move_robot",
+        std::bind(&MoveGroupInterfaceNode::handle_goal, this, _1, _2),
+        std::bind(&MoveGroupInterfaceNode::handle_cancel, this, _1),
+        std::bind(&MoveGroupInterfaceNode::handle_accepted, this, _1));
 
-    explicit MoveGroupInterfaceNode(const rclcpp::NodeOptions &options = rclcpp::NodeOptions())
-        : Node("fibonacci_action_server", options)
-    {
-      using namespace std::placeholders;
-
-      this->action_server_ = rclcpp_action::create_server<nlpcobot_interfaces::action::MoveRobot>(
-          this,
-          "move_robot",
-          std::bind(&MoveGroupInterfaceNode::handle_goal, this, _1),
-          std::bind(&MoveGroupInterfaceNode::handle_cancel, this, _1),
-          std::bind(&MoveGroupInterfaceNode::handle_accepted, this, _1));
-    }
-  }
-
-  void foo()
-  {
-    move_group_interface->setPoseTarget(generatePoseMessage(0.28, -0.2, 0.5));
-
-    // Create a plan to that target pose
-    auto const [success, plan] = planMotion();
-
-    // Execute the plan
-    if (success)
-    {
-      move_group_interface->execute(plan);
-    }
-    else
-    {
-      RCLCPP_ERROR(this->get_logger(), "Planning failed!");
-    }
+    RCLCPP_INFO(this->get_logger(), "MoveGroupInterfaceNode Ready!");
   }
 
 private:
@@ -70,30 +54,49 @@ private:
 
   void handle_accepted(const std::shared_ptr<GoalHandleMoveRobot> goal_handle)
   {
-    std::thread{std::bind(&MoveGroupInterfaceNode::execute_move, this, std::placeholders::_1), goal_handle}.detach();
+
+    using namespace std::placeholders;
+    // this needs to return quickly to avoid blocking the executor, so spin up a new thread
+    std::thread{std::bind(&MoveGroupInterfaceNode::execute, this, _1), goal_handle}.detach();
   }
 
-  void execute_move(const std::shared_ptr<GoalHandleMoveRobot> goal_handle)
+  void execute(const std::shared_ptr<GoalHandleMoveRobot> goal_handle)
   {
     RCLCPP_INFO(this->get_logger(), "Executing goal");
 
-    // Create the MoveIt MoveGroup Interface
-    auto move_group_interface = std::shared_ptr<moveit::planning_interface::MoveGroupInterface>(this->get_name(), "tmr_arm");
-
     const auto goal = goal_handle->get_goal();
-    auto result = std::make_shared<nlpcobot_interfaces::action::MoveRobot::Result>();
-    auto feedback = std::make_shared<nlpcobot_interfaces::action::MoveRobot::Feedback>();
+    auto feedback = std::make_shared<MoveRobot::Feedback>();
+    auto result = std::make_shared<MoveRobot::Result>();
 
-    // Set the target pose from the goal
-    move_group_interface->setPoseTarget(generatePoseMessage(goal->x, goal->y, goal->z));
+    // Create the MoveIt MoveGroup Interface
+    using moveit::planning_interface::MoveGroupInterface;
+    auto move_group_interface = MoveGroupInterface(shared_from_this(), "tmr_arm");
 
-    // Plan the motion
-    auto const [success, plan] = planMotion();
+    // Set a target Pose
+    auto const target_pose = [goal]
+    {
+      geometry_msgs::msg::Pose msg;
+      msg.orientation.w = 1.0;
+      msg.position.x = goal->x;
+      msg.position.y = goal->y;
+      msg.position.z = goal->z;
+      return msg;
+    }();
+    move_group_interface.setPoseTarget(target_pose);
+
+    // Create a plan to that target pose
+    auto const [success, plan] = [&move_group_interface]
+    {
+      moveit::planning_interface::MoveGroupInterface::Plan msg;
+      auto const ok = static_cast<bool>(move_group_interface.plan(msg));
+      return std::make_pair(ok, msg);
+    }();
 
     if (success)
     {
       // Execute the plan
-      move_group_interface->execute(plan);
+      RCLCPP_INFO(this->get_logger(), "Goal Succeeded");
+      move_group_interface.execute(plan);
       result->success = true;
       goal_handle->succeed(result);
     }
@@ -103,23 +106,6 @@ private:
       result->success = false;
       goal_handle->abort(result);
     }
-  }
-
-  geometry_msgs::msg::Pose const generatePoseMessage(double x, double y, double z)
-  {
-    geometry_msgs::msg::Pose msg;
-    msg.orientation.w = 1.0;
-    msg.position.x = x;
-    msg.position.y = y;
-    msg.position.z = z;
-    return msg;
-  }
-
-  std::pair<bool, moveit::planning_interface::MoveGroupInterface::Plan> planMotion()
-  {
-    moveit::planning_interface::MoveGroupInterface::Plan msg;
-    bool success = static_cast<bool>(move_group_interface->plan(msg));
-    return std::make_pair(success, msg);
   }
 };
 
