@@ -6,6 +6,7 @@ from std_msgs.msg import String
 from nlpcobot_interfaces.srv import ParseCommand, DetectObject
 from nlpcobot_interfaces.action import MoveRobot
 from nlpcobot_cpp_py.image_conversion import ImageConverter
+from nlpcobot_cpp_py.tf_camera_to_world import TfCamera2World
 from geometry_msgs.msg import PointStamped, Point
 from tf2_ros import Buffer, TransformListener
 
@@ -19,14 +20,17 @@ class NLPCobotNode(Node):
         self.get_logger().info("Initializing NLPCobotNode...")
 
         # Initialize Variables
-        self._action = ''
-        self._labels = ['']
-        self._img_msg = Image()
+        self._action = None
+        self._labels = [[]]
+        self._image_msg = Image()
         self._position = Point()
 
         # Static Transform Listener
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
+        
+        # Initialize Camera to World transformer
+        self.tf_camera_to_world = TfCamera2World()
 
         # Transcribed Audio Listener
         self.transcribed_audio_subscriber = self.create_subscription(
@@ -64,16 +68,6 @@ class NLPCobotNode(Node):
         
         self.get_logger().info("NLPCobotNode Ready!")
 
-        # Testing
-        self.get_logger().info("Starting Test Case!")
-        text = "Pick up the Cat for me, please"
-        action, labels = self.parse_command_service_request(text)
-        image = self._img_msg
-        position = self.detect_object_service_request(image, labels)
-        self.send_goal_move_robot([0.3, -0.2, 0.4])
-
-        self.get_logger().info("Test Case Completed!")
-
     def transcribed_audio_listener_callback(self, msg):
         if msg.data:
             self.get_logger().info('I heard: "%s"' % msg.data)
@@ -87,8 +81,8 @@ class NLPCobotNode(Node):
             return
 
     def sensor_image_listener_callback(self, msg):
-        self._img_msg = msg
-        self.get_logger().info('I got an Image!')
+        self._image_msg = msg
+        # self.get_logger().info('I got an Image!')
 
     def parse_command_service_request(self, text):
         request = ParseCommand.Request()
@@ -104,9 +98,18 @@ class NLPCobotNode(Node):
             f'Parsing Result: Action: {future.result().action}, Labels: {future.result().labels}')
         return future.result().action, future.result().labels
 
-    def detect_object_service_request(self, image, labels):
+    def detect_object_service_request(self, labels):
+        if not self._image_msg.data:
+            self.get_logger().info('Missing: Image...')
+            return
+        
+        if not labels:
+            self.get_logger().info('Missing: Labels...')
+            return
+        print(labels)
+        
         request = DetectObject.Request()
-        request.image = image
+        request.image = self._image_msg
         request.labels = labels
         
         while not self.detect_object_client.wait_for_service(timeout_sec=1.0):
@@ -128,8 +131,9 @@ class NLPCobotNode(Node):
         return self.move_robot_action_client.send_goal_async(goal_msg)
 
     # Function to transform from camera frame to world frame
-    def transform_point(self, x, y, z):
+    def transform_point(self, position):
         try:
+            x, y, z = position
             point_camera = PointStamped()
             point_camera.header.frame_id = "camera"
             point_camera.header.stamp = self.get_clock().now().to_msg()
@@ -146,14 +150,35 @@ class NLPCobotNode(Node):
             return None
 
     def check_command_action_callback(self):
-        if self._action == "Place":
+        if self._action == "place" or self._action == "pick":
+            self.get_logger().info('I am a Pick/Place command!')
+            if not self._labels:
+                self.get_logger().info('Labels is not defined!')
+                return
+            if self._action == "place":
+                self.get_logger().info('I am a Place command!')
+            elif self._action == "pick":
+                self.get_logger().info('I am a Place command!')
+        elif self._action == "move":
             self.get_logger().info('I am a Move command!')
-        elif self._action == "Pick":
-            self.get_logger().info('I am a Pick command!')
-        elif self._action == "Move":
-            self.get_logger().info('I am a Place command!')
         else:
             self.get_logger().info('Command not recognised, please try again!')
+            
+    def test_case(self):
+        # Testing
+        self.get_logger().info("Starting Test Case!")
+        text = "Pick up the Cat for me, please"
+        action, labels = self.parse_command_service_request(text)
+        self.check_command_action_callback()
+        pixel_position = self.detect_object_service_request(labels)
+        u = pixel_position.x
+        v = pixel_position.y
+        camera_x, camera_y, camera_z = 0.4, 0, 1.0
+        position = self.tf_camera_to_world.pixel_to_world(u, v, camera_x, camera_y, camera_z)
+        # position = self.transform_point(position)
+        self.send_goal_move_robot(position)
+
+        self.get_logger().info("Test Case Completed!")
 
 def main(args=None):
     rclpy.init(args=args)
@@ -162,6 +187,9 @@ def main(args=None):
 
     try:
         node.get_logger().info('Beginning client, shut down with CTRL-C')
+        #TESTING
+        rclpy.spin_once(node)
+        node.test_case()
         rclpy.spin(node)
 
     except KeyboardInterrupt:
@@ -171,7 +199,6 @@ def main(args=None):
     finally:
         node.destroy_node()
         rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()

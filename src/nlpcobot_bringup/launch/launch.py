@@ -106,13 +106,13 @@ def generate_launch_description():
     
     # declare launnch options
     ld.add_action(declare_use_sim_time_cmd)
+    ld.add_action(detect_object_node)
     ld.add_action(tm5_700_launch_file)
-    ld.add_action(nlpcobot_node)
     ld.add_action(speech_to_text_node)
     ld.add_action(parse_command_node)
     ld.add_action(image_publisher_node)
-    ld.add_action(detect_object_node)
     ld.add_action(move_group_interface_node)
+    ld.add_action(nlpcobot_node)
     
     # good luck
     return ld

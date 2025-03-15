@@ -71,12 +71,15 @@ private:
     // Create the MoveIt MoveGroup Interface
     using moveit::planning_interface::MoveGroupInterface;
     auto move_group_interface = MoveGroupInterface(shared_from_this(), "tmr_arm");
-
+    
     // Set a target Pose
     auto const target_pose = [goal]
     {
       geometry_msgs::msg::Pose msg;
-      msg.orientation.w = 1.0;
+      msg.orientation.w =  0.0;
+      msg.orientation.x =  1.0;
+      msg.orientation.y =  0.0;
+      msg.orientation.z =  0.0;
       msg.position.x = goal->x;
       msg.position.y = goal->y;
       msg.position.z = goal->z;

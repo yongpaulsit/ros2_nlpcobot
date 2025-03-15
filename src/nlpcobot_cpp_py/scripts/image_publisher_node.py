@@ -27,7 +27,7 @@ class SensorImagePublisherNode(Node):
         self.image = pImage.open(requests.get(image_url, stream=True).raw)
 
         # Create Self Fulfilling Prophecy
-        timer_period = 2.0 # seconds
+        timer_period = 0.5 # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         
     def timer_callback(self):
@@ -37,7 +37,7 @@ class SensorImagePublisherNode(Node):
         msg = self.image_converter.pil_to_ros(self.image)
         
         self.publisher_.publish(msg)
-        self.get_logger().info('Streaming Sensor Image!')            
+        self.get_logger().info(f'Publishing Sensor Image of size H[{msg.height}] x W[{msg.width}]!')            
             
 def main(args=None):
     rclpy.init(args=args)
