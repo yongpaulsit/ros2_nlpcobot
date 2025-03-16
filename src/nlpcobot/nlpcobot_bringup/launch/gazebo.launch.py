@@ -17,6 +17,16 @@ def generate_launch_description():
             os.path.join(pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py')),
         launch_arguments={'gz_args': '-r ' + world_path}.items(),
     )
+    
+    # ros_gz_bridge parameter_bridge /camera@sensor_msgs/msg/Image@ignition.msgs.Image
+    bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=[
+            '/camera@sensor_msgs/msg/Image@ignition.msgs.Image'
+        ],
+        output='screen'
+    )
 
     # Spawn robot in Gazebo
     spawn_entity = Node(
@@ -34,5 +44,6 @@ def generate_launch_description():
 
     ld = LaunchDescription()
     ld.add_action(gz_sim)
+    ld.add_action(bridge)
     ld.add_action(spawn_entity)
     return ld

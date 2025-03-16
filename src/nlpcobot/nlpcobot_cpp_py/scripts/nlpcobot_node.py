@@ -2,6 +2,7 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
+from rclpy.executors import MultiThreadedExecutor
 from std_msgs.msg import String
 from nlpcobot_interfaces.srv import ParseCommand, DetectObject, CaptureImage
 from nlpcobot_interfaces.action import MoveRobot
@@ -21,10 +22,11 @@ class NLPCobotNode(Node):
         self.get_logger().info("Initializing NLPCobotNode...")
 
         # Initialize Variables
+        self._text = None
         self._action = None
         self._labels = [[]]
         self._image_msg = Image()
-        self._position = Point()
+        self._pixel_position = Point()
 
         # Static Transform Listener
         self.tf_buffer = Buffer()
@@ -42,6 +44,15 @@ class NLPCobotNode(Node):
             10
         )
         self.transcribed_audio_subscriber
+
+        # Camera Listener
+        self.camera_subscriber = self.create_subscription(
+            Image,
+            'camera',
+            self.camera_listener_callback,
+            10
+        )
+        self.camera_subscriber
 
         # Sensor Image Listener
         self.sensor_image_subscriber = self.create_subscription(
@@ -74,24 +85,23 @@ class NLPCobotNode(Node):
         self.move_robot_action_client = ActionClient(
             self, MoveRobot, 'move_robot')
 
+        # Run
+        self.create_timer(1.0, self.run)
+        
         self.get_logger().info("NLPCobotNode Ready!")
 
     def transcribed_audio_listener_callback(self, msg):
         if msg.data:
             self.get_logger().info('I heard: "%s"' % msg.data)
-            try:
-                self._action, self._labels = self.parse_command_service_request(
-                    msg.data)
-                self.check_command_action_callback()
-            except Exception as e:
-                self.get_logger().error(e)
-                self.get_logger().warn("Please give a command with an action")
+            self._text = msg.data
         else:
             return
 
+    def camera_listener_callback(self, msg):
+        self._image_msg = msg
+
     def sensor_image_listener_callback(self, msg):
         self._image_msg = msg
-        # self.get_logger().info('I got an Image!')
 
     def capture_sensor_image_service_request(self):
         request = CaptureImage.Request()
@@ -115,10 +125,16 @@ class NLPCobotNode(Node):
         self.get_logger().info("Parse Command Service Ready!")
 
         future = self.parse_command_client.call_async(request)
-        rclpy.spin_until_future_complete(self, future)
-        self.get_logger().info(
-            f'Parsing Result: Action: {future.result().action}, Labels: {future.result().labels}')
-        return future.result().action, future.result().labels
+        future.add_done_callback(self.handle_parse_command_service_response)
+    
+    def handle_parse_command_service_response(self, future):
+        try:
+            self.get_logger().info(
+                f'Parsing Result: Action: {future.result().action}, Labels: {future.result().labels}')
+            self._action = future.result().action
+            self._labels = future.result().labels
+        except Exception as e:
+            self.get_logger().error(e)
 
     def detect_object_service_request(self, image_msg, labels):
         if not image_msg.data:
@@ -128,7 +144,6 @@ class NLPCobotNode(Node):
         if not labels:
             self.get_logger().info('Missing: Labels...')
             return
-        print(labels)
 
         request = DetectObject.Request()
         request.image = image_msg
@@ -139,10 +154,12 @@ class NLPCobotNode(Node):
         self.get_logger().info("Detect Object Service Ready!")
 
         future = self.detect_object_client.call_async(request)
-        rclpy.spin_until_future_complete(self, future)
+        future.add_done_callback(self.handle_detect_object_service_response)
+        
+    def handle_detect_object_service_response(self, future):
         self.get_logger().info(
             f'Parsing Result: Point: {future.result().position}')
-        return future.result().position
+        self._pixel_position = future.result().position
 
     def send_goal_move_robot(self, position):
         goal_msg = MoveRobot.Goal()
@@ -153,76 +170,52 @@ class NLPCobotNode(Node):
         return self.move_robot_action_client.send_goal_async(goal_msg)
 
     # Function to transform from camera frame to world frame
-    def transform_point(self, position):
-        try:
-            x, y, z = position
-            point_camera = PointStamped()
-            point_camera.header.frame_id = "camera"
-            point_camera.header.stamp = self.get_clock().now().to_msg()
-            point_camera.point.x = x
-            point_camera.point.y = y
-            point_camera.point.z = z
-
-            # Transform point to world frame
-            point_world = self.tf_buffer.transform(
-                point_camera, "world", rclpy.duration.Duration(seconds=1.0))
-            return [point_world.point.x, point_world.point.y, point_world.point.z]
-
-        except Exception as e:
-            return None
-
-    def check_command_action_callback(self):
-        if self._action == "place" or self._action == "pick":
-            self.get_logger().info('I am a Pick/Place command!')
-            if not self._labels:
-                self.get_logger().info('Labels is not defined!')
-                return
-            if self._action == "place":
-                self.get_logger().info('I am a Place command!')
-            elif self._action == "pick":
-                self.get_logger().info('I am a Place command!')
-        elif self._action == "move":
-            self.get_logger().info('I am a Move command!')
-        else:
-            self.get_logger().info('Command not recognised, please try again!')
-
-    def test_case(self):
-        # Testing
-        self.get_logger().info("Starting Test Case!")
-        text = "Pick up the Cat for me, please"
-        action, labels = self.parse_command_service_request(text)
-        self.check_command_action_callback()
-        image_msg = self.capture_sensor_image_service_request()
-        self.image_converter.show(image_msg)
-        pixel_position = self.detect_object_service_request(image_msg, labels)
-        u = pixel_position.x
-        v = pixel_position.y
+    def transform_pixel(self):
+        u = self._pixel_position.x
+        v = self._pixel_position.y
         camera_x, camera_y, camera_z = 0.4, 0, 1.0
         position = self.tf_camera_to_world.pixel_to_world(
             u, v, camera_x, camera_y, camera_z)
-        # position = self.transform_point(position)
-        self.send_goal_move_robot(position)
+        return position
 
-        self.get_logger().info("Test Case Completed!")
-
+    def run(self):
+        if self._text:
+            self.parse_command_service_request(self._text)
+            self._text = None
+            
+        if self._image_msg.data and self._action:
+            self.image_converter.show(self._image_msg)
+            if (self._action == "pick" or self._action == "place") and self._labels:
+                self.detect_object_service_request(self._image_msg, self._labels)
+            elif self.action == "move":
+                self.get_logger().info("Not Implemented!")
+            self._image_msg = Image()
+            self._action = None
+            self._labels = [[]]
+            
+        if self._pixel_position.x:
+            position = self.transform_pixel()
+            self.send_goal_move_robot(position)
+            self._pixel_position = Point()
 
 def main(args=None):
     rclpy.init(args=args)
 
     node = NLPCobotNode()
+    # executor = MultiThreadedExecutor()
+    # executor.add_node(node)
 
     try:
         node.get_logger().info('Beginning client, shut down with CTRL-C')
-        # TESTING
-        rclpy.spin_once(node)
-        node.test_case()
         rclpy.spin(node)
+        # executor.spin()
 
     except KeyboardInterrupt:
         node.get_logger().info('Keyboard interrupt, shutting down.\n')
         pass
 
     finally:
+        # executor.shutdown()
         node.destroy_node()
         rclpy.shutdown()
 

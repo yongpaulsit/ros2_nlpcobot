@@ -38,12 +38,12 @@ class DetectObjectNode(Node):
 
         image = self.image_converter.ros_to_pil(request.image)
         labels = request.labels
-        labels = [['cat', 'remote control']]
+        labels = [['blue block', 'red cube']]
 
         self.get_logger().info(f'Looking for "{labels}" in image...')
         results = self.detect(image, labels)
 
-        if not results:
+        if results is None:
             self.get_logger().info('Nothing Found!')
             return DetectObject.Response()
 
@@ -83,6 +83,21 @@ class DetectObjectNode(Node):
             y = (ymin + ymax) / 2
             z = 0.0 # 2d image processing, z will always be zero
             return x, y, z
+        
+    def test(self):
+        image_path = "/home/yongp/workspaces/nlpcobot_ws/src/nlpcobot/nlpcobot_cpp_py/images/test_img_01.PNG"
+        image = Image.open(image_path)
+        image.show()
+        labels = [['blue cube', 'red block']]
+        
+        self.get_logger().info(f'Looking for "{labels}" in image...')
+        results = self.detect(image, labels)
+
+        if not results:
+            self.get_logger().info('Nothing Found!')
+            return
+
+        x, y, z = self.parse_results(results[0])
 
 def main(args=None):
     rclpy.init(args=args)
@@ -91,6 +106,7 @@ def main(args=None):
 
     try:
         node.get_logger().info('Beginning client, shut down with CTRL-C')
+        # node.test()
         rclpy.spin(node)
 
     except KeyboardInterrupt:
