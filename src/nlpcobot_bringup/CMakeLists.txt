@@ -6,10 +6,18 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
+find_package(nlpcobot_description REQUIRED)
+find_package(nlpcobot_cpp_py REQUIRED)
 
 # Install launch files
 install(
   DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
+# Install config files
+install(
+  DIRECTORY config
   DESTINATION share/${PROJECT_NAME}
 )
 

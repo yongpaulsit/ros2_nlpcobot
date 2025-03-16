@@ -1,0 +1,5 @@
+# Request (input): natural language command
+bool data
+---
+# Response (output): the identified action and associated labels
+sensor_msgs/Image image

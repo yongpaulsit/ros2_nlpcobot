@@ -8,16 +8,17 @@ from sensor_msgs.msg import Image
 import requests
 from PIL import Image as pImage
 from nlpcobot_cpp_py.image_conversion import ImageConverter
+from nlpcobot_interfaces.srv import CaptureImage
 
-class SensorImagePublisherNode(Node):
+class SensorImageServiceNode(Node):
     def __init__(self):
-        super().__init__('sensor_image_publisher_node')
-        self.get_logger().info("Initializing SensorImageStreamerNode...")
+        super().__init__('sensor_image_service_node')
+        self.get_logger().info("Initializing SensorImageServiceNode...")
         
-        self.publisher_ = self.create_publisher(
-            Image, 
-            'sensor_image',
-            10
+        self.service_ = self.create_service(
+            CaptureImage,
+            'capture_sensor_image',
+            self.service_callback,
         )
         
         self.image_converter = ImageConverter()
@@ -25,24 +26,21 @@ class SensorImagePublisherNode(Node):
         # for testing
         image_url = "http://images.cocodataset.org/val2017/000000039769.jpg"
         self.image = pImage.open(requests.get(image_url, stream=True).raw)
-
-        # Create Self Fulfilling Prophecy
-        timer_period = 1 # seconds
-        self.timer = self.create_timer(timer_period, self.timer_callback)
         
-    def timer_callback(self):
-        msg = Image()
-        
-        # for testing, pretend an image was capture from a camera
-        msg = self.image_converter.pil_to_ros(self.image)
-        
-        self.publisher_.publish(msg)
-        self.get_logger().info(f'Publishing Sensor Image of size H[{msg.height}] x W[{msg.width}]!')            
+    def service_callback(self, request, response):
+        self.get_logger().info(f'Capture Image Service Request Received!')
+        try:
+            # for testing, pretend an image was capture from a camera
+            response.image = self.image_converter.pil_to_ros(self.image)
+        except Exception as e:
+            self.get_logger().warn(e)
+            response = CaptureImage.Response()
+        return response
             
 def main(args=None):
     rclpy.init(args=args)
     
-    node = SensorImagePublisherNode()
+    node = SensorImageServiceNode()
     
     try:
         node.get_logger().info('Beginning client, shut down with CTRL-C')

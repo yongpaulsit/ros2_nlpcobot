@@ -18,9 +18,10 @@ find_package(rosidl_default_generators REQUIRED)
 # Generate messages
 rosidl_generate_interfaces(${PROJECT_NAME}
     "msg/AudioData.msg"
-    "srv/TranscribeAudio.srv"
-    "srv/ParseCommand.srv"
+    "srv/CaptureImage.srv"
     "srv/DetectObject.srv"
+    "srv/ParseCommand.srv"
+    "srv/TranscribeAudio.srv"
     "action/MoveRobot.action"
     DEPENDENCIES std_msgs std_srvs sensor_msgs geometry_msgs
 )

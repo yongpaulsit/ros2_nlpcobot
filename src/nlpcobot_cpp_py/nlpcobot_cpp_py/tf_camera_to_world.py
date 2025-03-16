@@ -34,7 +34,7 @@ class TfCamera2World:
         y_world = (v_norm * self.workspace_height / 2) + camera_y
 
         # The z-coordinate is the same as the workspace height (0 m)
-        z_world = 0.5 # +0.5 offset for testing
+        z_world = 0.0
 
         return x_world, y_world, z_world
 

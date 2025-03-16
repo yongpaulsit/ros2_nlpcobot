@@ -24,6 +24,10 @@ class ImageConverter:
             return None
         return img
     
+    def show(self, image: SensorImage):
+        img = self.ros_to_pil(image)
+        img.show()
+    
 # abandoned stuff, can be ignored
 if False:
     import rclpy.time

@@ -6,7 +6,6 @@
 #include <geometry_msgs/msg/pose.h>
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <nlpcobot_interfaces/action/move_robot.hpp>
-
 class MoveGroupInterfaceNode : public rclcpp::Node
 {
 public:

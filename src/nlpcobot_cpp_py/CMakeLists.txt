@@ -38,8 +38,9 @@ ament_target_dependencies(move_group_interface_node
   rclcpp 
   rclcpp_action
   std_srvs
-  moveit_ros_planning_interface
   geometry_msgs
+  moveit_ros_planning_interface
+  moveit_msgs
   nlpcobot_interfaces
 )
 
@@ -62,6 +63,7 @@ install(PROGRAMS
   scripts/detect_object_node.py
   scripts/parse_command_node.py
   scripts/image_publisher_node.py
+  scripts/image_service_node.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
