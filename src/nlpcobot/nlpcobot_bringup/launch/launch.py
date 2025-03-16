@@ -5,19 +5,12 @@ import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch_ros.actions import Node
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python import get_package_share_directory
 
 def generate_launch_description():    
     # Launch Arguments
-    namespace = LaunchConfiguration("namespace")
-    declare_namespace_cmd = DeclareLaunchArgument(
-        "namespace", 
-        default_value="", 
-        description="Top level namespace. Not Implemented",
-    )
-    
     use_sim_time = LaunchConfiguration("use_sim_time")
     declare_use_sim_time_cmd = DeclareLaunchArgument(
         "use_sim_time",
@@ -85,7 +78,7 @@ def generate_launch_description():
     )
     
     # tmr_ros2 driver
-    cobot_launch = IncludeLaunchDescription(
+    cobot = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(
                 get_package_share_directory('nlpcobot_bringup'), 
@@ -95,16 +88,28 @@ def generate_launch_description():
         )
     )
     
+    # Gazebo
+    gazebo = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory('nlpcobot_bringup'), 
+                'launch',
+                'gazebo.launch.py'
+            )
+        )
+    )
+    
     # create launch description object
     ld = LaunchDescription()
     
     # declare launch options
     ld.add_action(declare_use_sim_time_cmd)
-    ld.add_action(cobot_launch)
+    ld.add_action(cobot)
+    ld.add_action(gazebo)
     
     # my stuff
     ld.add_action(detect_object_node)
-    ld.add_action(image_publisher_node)
+    # ld.add_action(image_publisher_node)
     ld.add_action(image_service_node)
     ld.add_action(move_group_interface_node)
     ld.add_action(nlpcobot_node)
