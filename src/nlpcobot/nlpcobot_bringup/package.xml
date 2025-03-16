@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>nlpcobot_bringup</name>
+  <version>0.0.0</version>
+  <description>Launch configuration for the NLPCobot system</description>
+  <maintainer email="2102088@sit.singaporetech.edu.sg">yongp</maintainer>
+  <license>Apache-2.0</license>
+
+  <depend>nlpcobot_cpp_py</depend>
+  <depend>nlpcobot_description</depend>
+  <depend>nlpcobot_gazebo</depend>
+  <depend>tm5-700_moveit_config</depend>
+  <depend>tm_description</depend>
+
+  <depend>ros_gz</depend>
+  <depend>sdformat_urdf</depend>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
