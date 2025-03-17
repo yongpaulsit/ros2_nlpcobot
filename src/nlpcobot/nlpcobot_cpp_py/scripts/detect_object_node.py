@@ -38,7 +38,19 @@ class DetectObjectNode(Node):
 
         image = self.image_converter.ros_to_pil(request.image)
         labels = request.labels
-        labels = [['blue block', 'red cube']]
+        
+        # Hardcoded until i figure out how to use Grounding DINO
+        labels = labels[0]
+        if "blue" in labels:
+            labels = [['blue block', 'cat']]
+        if "red" in labels:
+            labels = [['red block', 'cat']]
+        if "yellow" in labels:
+            labels = [['yellow block', 'cat']]
+        if "pink" in labels:
+            labels = [['pink block', 'cat']]
+        if "green" in labels:
+            labels = [['green block', 'cat']]
 
         self.get_logger().info(f'Looking for "{labels}" in image...')
         results = self.detect(image, labels)

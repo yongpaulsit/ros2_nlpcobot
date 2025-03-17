@@ -19,15 +19,27 @@ class SpeechToTextNode(Node):
             10
         )
         
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.recorder = AudioToTextRecorder(
-            language='en', 
-            device=device, 
-            # wake_words='jarvis',
-        )
+        self.device_ = "cuda" if torch.cuda.is_available() else "cpu"
+        self.init_recorder()
         
         self.thread = Thread(target=self.main, daemon=True)
         self.thread.start()
+        
+    def init_recorder(self):
+        self.recorder_ = AudioToTextRecorder(
+            spinner=True,
+            language='en', 
+            device=self.device_, 
+            # wake_words='computer',
+            on_wakeword_detected=self.recording_started, 
+            on_recording_stop=self.recording_finished,
+        )
+        
+    def recording_started(self):
+        self.get_logger().info("Speak Now...")
+        
+    def recording_finished(self):
+        self.get_logger().info("Finished recording, starting processing...")
         
     def process_text(self, text):
         msg = String()
@@ -37,7 +49,8 @@ class SpeechToTextNode(Node):
         
     def main(self):
         while True:
-            self.recorder.text(self.process_text)
+            # self.init_recorder()
+            self.recorder_.text(self.process_text)
             
 def main(args=None):
     rclpy.init(args=args)
