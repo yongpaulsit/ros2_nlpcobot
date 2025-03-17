@@ -9,7 +9,7 @@ def generate_launch_description():
     # Configure robot_description
     pkg_ros_gz_sim = get_package_share_directory('ros_gz_sim')
     pkg_nlpcobot_gazebo = get_package_share_directory('nlpcobot_gazebo')
-    world_path = os.path.join(pkg_nlpcobot_gazebo, 'worlds', 'shapes.sdf')
+    world_path = os.path.join(pkg_nlpcobot_gazebo, 'worlds', 'nlpcobot_world.sdf')
 
     # Launch an empty Gazebo world
     gz_sim = IncludeLaunchDescription(

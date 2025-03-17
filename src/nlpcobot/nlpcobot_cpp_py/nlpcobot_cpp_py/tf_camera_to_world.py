@@ -36,7 +36,8 @@ class TfCamera2World:
         y_world = (v_norm * self.workspace_height / 2) + camera_y
 
         # The z-coordinate is the same as the workspace height (0 m)
-        z_world = 0.0
+        # Small offset for size of object
+        z_world = 0.2
 
         return x_world, y_world, z_world
 
@@ -54,4 +55,4 @@ if __name__ == "__main__":
     x_world, y_world, z_world = transformer.pixel_to_world(u, v, camera_x, camera_y, camera_z)
 
     # Output the result
-    print(f"World Coordinates: ({x_world:.2f}, {y_world:.2f}, {z_world:.2f}) cm")
+    print(f"World Coordinates: ({x_world:.2f}, {y_world:.2f}, {z_world:.2f})")
