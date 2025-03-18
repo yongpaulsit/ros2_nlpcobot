@@ -158,7 +158,7 @@ class NLPCobotNode(Node):
         
     def handle_detect_object_service_response(self, future):
         self.get_logger().info(
-            f'Parsing Result: Point: {future.result().position}')
+            f'Parsing Result: Pixel Coordinates:= {future.result().position}')
         self._pixel_position = future.result().position
 
     def send_goal_move_robot(self, position):
@@ -176,8 +176,11 @@ class NLPCobotNode(Node):
         camera_x, camera_y, camera_z = 0.4, 0, 1.0
         position = self.tf_camera_to_world.pixel_to_world(
             u, v, camera_x, camera_y, camera_z)
+        self.get_logger().info(
+            f'Transformed Point: {position}')
         return position
 
+    # Main Loop
     def run(self):
         if self._text:
             self.parse_command_service_request(self._text)
